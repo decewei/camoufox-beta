@@ -48,11 +48,12 @@ class Patcher:
         version, release = extract_args()
         with temp_cd(find_src_dir('.', version, release)):
             # Reset to unpatched state first (like "Find broken patches")
-            print("Resetting to unpatched state...")
-            run('git clean -fdx && ./mach clobber && git reset --hard unpatched', exit_on_fail=False)
+            # print("Resetting to unpatched state...")
+            # run('git clean -fdx && ./mach clobber && git reset --hard unpatched', exit_on_fail=False)
 
             # Re-copy additions and settings after reset
             print("Re-copying additions and settings...")
+            run(f"ls -la")
             run(f'bash ../scripts/copy-additions.sh {version} {release}')
 
             # Create the base mozconfig file

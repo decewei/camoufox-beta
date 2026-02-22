@@ -106,7 +106,7 @@ dir:
 	touch $(cf_source_dir)/_READY
 
 set-target:
-	cd $(cf_source_dir) && python3 ../scripts/patch.py $(version) $(release) --mozconfig-only
+	python3 scripts/patch.py $(version) $(release) --mozconfig-only
 
 mozbootstrap:
 	cd $(cf_source_dir) && MOZBUILD_STATE_PATH=$$HOME/.mozbuild ./mach --no-interactive bootstrap --application-choice=browser
