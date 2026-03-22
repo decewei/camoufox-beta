@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import fcntl
 import glob
 import os
 import shutil
@@ -9,6 +10,11 @@ import tempfile
 from shlex import join
 
 from _mixin import find_src_dir, get_moz_target, list_files, run, temp_cd
+
+# Ensure stdout/stderr are in blocking mode (Make can set them to non-blocking)
+for fd in [1, 2]:  # stdout, stderr
+    flags = fcntl.fcntl(fd, fcntl.F_GETFL)
+    fcntl.fcntl(fd, fcntl.F_SETFL, flags & ~os.O_NONBLOCK)
 
 UNNEEDED_PATHS = {'uninstall', 'pingsender.exe', 'pingsender', 'vaapitest', 'glxtest'}
 

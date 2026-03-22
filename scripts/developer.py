@@ -3,6 +3,7 @@
 """
 GUI for managing Camoufox patches.
 """
+import fcntl
 import os
 import re
 import sys
@@ -10,6 +11,10 @@ import easygui
 
 from _mixin import find_src_dir, is_bootstrap_patch, list_patches, patch, run, temp_cd
 
+# Ensure stdout/stderr are in blocking mode (Make can set them to non-blocking)
+for fd in [1, 2]:  # stdout, stderr
+    flags = fcntl.fcntl(fd, fcntl.F_GETFL)
+    fcntl.fcntl(fd, fcntl.F_SETFL, flags & ~os.O_NONBLOCK)
 
 def into_camoufox_dir():
     """Cd to the camoufox-* folder"""

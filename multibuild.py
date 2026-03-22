@@ -16,6 +16,7 @@ $ python3 multibuild.py --target linux windows macos --arch x86_64 arm64
 Since Camoufox is NOT meant to be used as a daily driver, no installers are provided.
 """
 
+import subprocess
 import argparse
 import glob
 import os
@@ -51,14 +52,36 @@ def setup_linux_sysroots():
             print(f"Creating libsqlite3.so symlink in {sysroot_lib}")
             sqlite_so.symlink_to('libsqlite3.so.0')
 
-
 def run(cmd, exit_on_fail=True):
     print(f'\n------------\n{cmd}\n------------\n')
-    retval = os.system(cmd)
+    
+    # Use Popen with inherited file descriptors (None means inherit from parent)
+    # This preserves TTY mode and blocking I/O
+    process = subprocess.Popen(
+        cmd,
+        shell=True,
+        stdin=None,           # Inherit stdin
+        stdout=None,          # Inherit stdout (don't redirect)
+        stderr=None,          # Inherit stderr (don't redirect)
+        text=True
+    )
+    
+    # Wait for process to complete
+    retval = process.wait()
+    
     if retval != 0 and exit_on_fail:
-        print(f"fatal error: command '{cmd}' failed")
+        print(f"fatal error: command '{cmd}' failed with exit code {retval}")
         sys.exit(1)
+        
     return retval
+
+# def run(cmd, exit_on_fail=True):
+#     print(f'\n------------\n{cmd}\n------------\n')
+#     retval = os.system(cmd)
+#     if retval != 0 and exit_on_fail:
+#         print(f"fatal error: command '{cmd}' failed")
+#         sys.exit(1)
+#     return retval
 
 
 @dataclass
@@ -159,6 +182,7 @@ def main():
         setup_linux_sysroots()
 
     # Run build
+    os.environ["MACH_STDOUT_ISATTY"] = "1"
     for target in args.target:
         for arch in args.arch:
             if (target, arch) in [("windows", "arm64"), ("macos", "i686")]:

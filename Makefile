@@ -7,6 +7,7 @@ ff_source_tarball := firefox-$(version).source.tar.xz
 debs := python3 python3-dev python3-pip p7zip-full golang-go msitools wget aria2 libsqlite3-dev
 rpms := python3 python3-devel p7zip golang msitools wget aria2 sqlite-devel
 pacman := python python-pip p7zip go msitools wget aria2 sqlite
+macos := python@3.11 python-setuptools p7zip go msitools wget aria2 sqlite
 
 .PHONY: help fetch setup setup-minimal clean set-target distclean build package \
         build-launcher check-arch revert edits run bootstrap mozbootstrap dir \
@@ -112,7 +113,7 @@ mozbootstrap:
 	cd $(cf_source_dir) && MOZBUILD_STATE_PATH=$$HOME/.mozbuild ./mach --no-interactive bootstrap --application-choice=browser
 
 bootstrap: dir
-	(sudo apt-get -y install $(debs) || sudo dnf -y install $(rpms) || sudo pacman -Sy $(pacman))
+	(sudo apt-get -y install $(debs) || sudo dnf -y install $(rpms) || sudo pacman -Sy $(pacman) || brew install $(macos))
 	make mozbootstrap
 
 diff:

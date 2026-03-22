@@ -17,4 +17,13 @@ ac_add_options --disable-update-agent
 # export HOST_CXX="$CROSS/cla   ng/bin/clang++"
 
 # Only temporary
-# ac_add_options --with-macos-sdk="$MOZBUILD/MacOSX14.4.sdk"
+ac_add_options --with-macos-sdk="/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+
+# This stops the "Parallelism determined by memory" logic entirely
+mk_add_options MOZ_PARALLEL_BUILD=2
+
+# This ensures the underlying Make process doesn't jump back to -j8
+mk_add_options MOZ_MAKE_FLAGS="-j2"
+
+# Prevents internal Rust threading (the cause of multiple rustc processes)
+export RUSTFLAGS="-C codegen-units=1"

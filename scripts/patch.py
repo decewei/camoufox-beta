@@ -9,6 +9,7 @@ Run:
     python3 scripts/init-patch.py <version> <release>
 """
 
+import fcntl
 import hashlib
 import os
 import re
@@ -26,6 +27,11 @@ from _mixin import (
     run,
     temp_cd,
 )
+
+# Ensure stdout/stderr are in blocking mode (Make can set them to non-blocking)
+for fd in [1, 2]:  # stdout, stderr
+    flags = fcntl.fcntl(fd, fcntl.F_GETFL)
+    fcntl.fcntl(fd, fcntl.F_SETFL, flags & ~os.O_NONBLOCK)
 
 options, args = get_options()
 
@@ -241,8 +247,9 @@ if __name__ == "__main__":
     _update_rustup(TARGET)
 
     # Check if the folder exists
-    if not os.path.exists(f'camoufox-{VERSION}-{RELEASE}/configure.py'):
-        sys.stderr.write('error: folder doesn\'t look like a Firefox folder.')
+    configure_py = f'camoufox-{VERSION}-{RELEASE}/configure.py'
+    if not os.path.exists(configure_py):
+        sys.stderr.write(f'error: folder doesn\'t look like a Firefox folder. Missing {configure_py}\n')
         sys.exit(1)
 
     # Apply the patches
